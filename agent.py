@@ -45,7 +45,7 @@ def find_best_email(restaurant: dict, business_type: str = "restaurant") -> tupl
     )
     
     if result:
-        email, source, confidence = result
+        source, email, confidence = result
         return (email, source, confidence)
     
     return (None, None, 0.0)
@@ -66,7 +66,7 @@ def main(test_mode=False, auto_export=True, business_type: str = "restaurant"):
     print("🔍 Searching for businesses using OpenStreetMap...")
     businesses = get_restaurants(
         location=LOCATION_COORDS,
-        radius=3000  # 3km radius
+        radius=5000  # 5km radius
     )
 
     if not businesses:

@@ -4,6 +4,7 @@ import time
 
 # Multiple Overpass API endpoints (for redundancy)
 OVERPASS_ENDPOINTS = [
+    "https://overpass.private.coffee/api/interpreter",
     "https://overpass-api.de/api/interpreter",
     "https://overpass.osm.ch/api/interpreter",
     "https://z.overpass-api.de/api/interpreter"
@@ -117,9 +118,14 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
                 else:
                     print(f"🔄 Retry {attempt}/{max_retries-1} on {endpoint}...")
                 
+                headers = {
+                    "User-Agent": "MultiBusinessOutreachAgent/1.0 (contact@webuildsolutions21.gmail.com)",
+                    "Content-Type": "application/x-www-form-urlencoded"
+                }
                 response = requests.post(
                     endpoint, 
                     data=overpass_query,
+                    headers=headers,
                     timeout=60  # Increased timeout
                 )
                 response.raise_for_status()

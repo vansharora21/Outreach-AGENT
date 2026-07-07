@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InsightAI - Multi-Business Outreach Showcase</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="results/dashboard_data.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: rgba(17, 24, 39, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #06b6d4;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(6, 182, 212, 0.15) 0%, transparent 45%);
+            background-attachment: fixed;
+            padding: 2rem;
+        }
+
+        /* Container Layout */
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Glassmorphism Header */
+        header {
+            background: var(--bg-secondary);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 1.5rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .logo-section h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-section p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        /* Premium Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--border-color);
+            padding: 4px;
+            border-radius: 999px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .toggle-btn {
+            padding: 0.5rem 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 999px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--text-muted);
+            border: none;
+            background: transparent;
+            cursor: pointer;
+        }
+
+        .toggle-btn.active {
+            color: #ffffff;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 550px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat-card {
+            background: var(--bg-secondary);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .stat-card.blue::before { background: var(--accent-cyan); }
+        .stat-card.purple::before { background: var(--accent-purple); }
+        .stat-card.pink::before { background: var(--accent-pink); }
+        .stat-card.green::before { background: var(--accent-green); }
+
+        .stat-title {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .stat-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Main Dashboard Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 2rem;
+            min-width: 0;
+        }
+        .main-grid > div {
+            min-width: 0;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            body {
+                padding: 1rem;
+            }
+            header {
+                flex-direction: column;
+                gap: 1.2rem;
+                align-items: flex-start;
+                padding: 1.5rem;
+            }
+            .logo-section h1 {
+                font-size: 1.4rem;
+            }
+            .controls {
+                width: 100%;
+                justify-content: flex-start;
+            }
+            .toggle-container {
+                width: 100%;
+                justify-content: space-between;
+            }
+            .toggle-btn {
+                flex: 1;
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .card {
+                padding: 1.25rem;
+            }
+        }
+
+        .card {
+            background: var(--bg-secondary);
+            backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 1rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+
+        /* Funnel Progress Bars */
+        .funnel-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            padding: 0.5rem 0;
+        }
+
+        .funnel-step {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .funnel-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .funnel-label span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+        }
+
+        .funnel-bar-outer {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .funnel-bar-inner {
+            height: 100%;
+            border-radius: 6px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+        }
+
+        /* Contacts Table styling */
+        .contacts-table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            padding: 1rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        td {
+            padding: 1.2rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.9rem;
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .quality-badge {
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .quality-high { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.2); }
+        .quality-med { background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); border: 1px solid rgba(245, 158, 11, 0.2); }
+        .quality-low { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+
+        .source-badge {
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+        }
+
+        /* 3 Columns Charts Section */
+        .charts-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            min-width: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <header>
+        <div class="logo-section">
+            <h1>🚀 InsightAI Outreach Showcase</h1>
+            <p>Restaurant Lead Generation and Outreach Performance Dashboard</p>
+        </div>
+        <div class="controls">
+            <div class="toggle-container" onclick="toggleDataset()">
+                <button id="btn-live" class="toggle-btn active">Live Database</button>
+                <button id="btn-demo" class="toggle-btn">Demo Campaign</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Stats Row -->
+    <div class="stats-grid">
+        <div class="stat-card blue">
+            <div class="stat-title">Total Found</div>
+            <div class="stat-value" id="val-total">0</div>
+            <div class="stat-sub">Businesses in area</div>
+        </div>
+        <div class="stat-card purple">
+            <div class="stat-title">Emails Discovered</div>
+            <div class="stat-value" id="val-discovered">0</div>
+            <div class="stat-sub" id="val-discovery-rate">0% discovery rate</div>
+        </div>
+        <div class="stat-card pink">
+            <div class="stat-title">Outreach Sent</div>
+            <div class="stat-value" id="val-sent">0</div>
+            <div class="stat-sub">Personalized emails</div>
+        </div>
+        <div class="stat-card green">
+            <div class="stat-title">Campaign Replies</div>
+            <div class="stat-value" id="val-replied">0</div>
+            <div class="stat-sub" id="val-reply-rate">0% response rate</div>
+        </div>
+    </div>
+
+    <!-- Main Grid -->
+    <div class="main-grid">
+        <!-- Left: Funnel & Table -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Funnel Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Campaign Funnel Analysis</div>
+                </div>
+                <div class="funnel-container">
+                    <div class="funnel-step">
+                        <div class="funnel-label">
+                            <span>1. Businesses Found</span>
+                            <span id="funnel-val-1">0</span>
+                        </div>
+                        <div class="funnel-bar-outer">
+                            <div id="funnel-bar-1" class="funnel-bar-inner" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">
+                            <span>2. Emails Discovered</span>
+                            <span id="funnel-val-2">0</span>
+                        </div>
+                        <div class="funnel-bar-outer">
+                            <div id="funnel-bar-2" class="funnel-bar-inner" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">
+                            <span>3. Campaigns Dispatched</span>
+                            <span id="funnel-val-3">0</span>
+                        </div>
+                        <div class="funnel-bar-outer">
+                            <div id="funnel-bar-3" class="funnel-bar-inner" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    <div class="funnel-step">
+                        <div class="funnel-label">
+                            <span>4. Email Responses</span>
+                            <span id="funnel-val-4">0</span>
+                        </div>
+                        <div class="funnel-bar-outer">
+                            <div id="funnel-bar-4" class="funnel-bar-inner" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contacts Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Top Quality Targets Identified</div>
+                </div>
+                <div class="contacts-table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Cuisine</th>
+                                <th>Score</th>
+                                <th>Source</th>
+                            </tr>
+                        </thead>
+                        <tbody id="contacts-body">
+                            <!-- Dynamic Table Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Charts -->
+        <div style="display: flex; flex-direction: column; gap: 2rem;">
+            <!-- Email Source Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Email Source Breakdown</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="sourceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Quality Card -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title">Lead Quality Distribution</div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="qualityChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Live database data loaded from JSON
+    let liveData = {
+        summary: { total_found: 0, emails_found: 0, emails_sent: 0, emails_opened: 0, emails_replied: 0, email_finding_rate: 0 },
+        cuisine_performance: { data: [] },
+        email_source_breakdown: { data: [] },
+        quality_distribution: { data: [] },
+        top_contacts: []
+    };
+
+    // Simulated Demo Campaign data for showcase purposes
+    const demoData = {
+        summary: {
+            total_found: 139,
+            emails_found: 85,
+            emails_sent: 85,
+            emails_opened: 52,
+            emails_replied: 12,
+            email_finding_rate: 61.2
+        },
+        email_source_breakdown: {
+            data: [
+                ["website", 42],
+                ["clearbit", 18],
+                ["hunter", 15],
+                ["osm", 6],
+                ["generated", 4]
+            ]
+        },
+        quality_distribution: {
+            data: [
+                ["Excellent (0.8-1.0)", 32],
+                ["Good (0.6-0.8)", 48],
+                ["Fair (0.4-0.6)", 44],
+                ["Poor (<0.4)", 15]
+            ]
+        },
+        top_contacts: [
+            { name: "Jaipur modern", email: "info@jaipurmodern.com", cuisine: "Italian, Cafe", contact_quality_score: 0.9, email_source: "website" },
+            { name: "Kha'Ba bar and kitchen", email: "info@khandelahaveli.com", cuisine: "Multi-Cuisine", contact_quality_score: 0.85, email_source: "website" },
+            { name: "Kalyan Rooftop Restaurant", email: "hotelkalyan@gmail.com", cuisine: "Indian", contact_quality_score: 0.8, email_source: "website" },
+            { name: "Hotel Marc Inn", email: "hotelmarcinn@gmail.com", cuisine: "Continental", contact_quality_score: 0.78, email_source: "website" },
+            { name: "Atithiya", email: "atithiyacafe@gmail.com", cuisine: "Indian Vegetarian", contact_quality_score: 0.75, email_source: "website" }
+        ]
+    };
+
+    let currentDatasetType = 'live'; // 'live' or 'demo'
+    let sourceChart = null;
+    let qualityChart = null;
+
+    // Load Live Data from script variable or fetch
+    async function loadData() {
+        if (window.dashboardData) {
+            liveData = window.dashboardData;
+            console.log("Loaded Live Data from window.dashboardData", liveData);
+        } else {
+            try {
+                const response = await fetch('results/dashboard_data.json');
+                if (response.ok) {
+                    liveData = await response.json();
+                    console.log("Loaded Live Data successfully", liveData);
+                }
+            } catch (error) {
+                console.warn("Could not load results/dashboard_data.json, using fallback values", error);
+            }
+        }
+        updateDashboard();
+    }
+
+    function toggleDataset() {
+        const btnLive = document.getElementById('btn-live');
+        const btnDemo = document.getElementById('btn-demo');
+        
+        if (currentDatasetType === 'live') {
+            currentDatasetType = 'demo';
+            btnLive.classList.remove('active');
+            btnDemo.classList.add('active');
+        } else {
+            currentDatasetType = 'live';
+            btnDemo.classList.remove('active');
+            btnLive.classList.add('active');
+        }
+        updateDashboard();
+    }
+
+    function updateDashboard() {
+        const data = currentDatasetType === 'live' ? liveData : demoData;
+        const summary = data.summary;
+
+        // 1. Text values
+        document.getElementById('val-total').innerText = summary.total_found;
+        document.getElementById('val-discovered').innerText = summary.emails_found;
+        document.getElementById('val-discovery-rate').innerText = `${summary.email_finding_rate}% discovery rate`;
+        document.getElementById('val-sent').innerText = summary.emails_sent;
+        document.getElementById('val-replied').innerText = summary.emails_replied;
+        
+        const replyRate = summary.emails_sent > 0 ? (100 * summary.emails_replied / summary.emails_sent).toFixed(1) : "0.0";
+        document.getElementById('val-reply-rate').innerText = `${replyRate}% response rate`;
+
+        // 2. Funnel Analysis
+        document.getElementById('funnel-val-1').innerText = summary.total_found;
+        document.getElementById('funnel-val-2').innerText = summary.emails_found;
+        document.getElementById('funnel-val-3').innerText = summary.emails_sent;
+        document.getElementById('funnel-val-4').innerText = summary.emails_replied;
+
+        document.getElementById('funnel-bar-1').style.width = '100%';
+        document.getElementById('funnel-bar-2').style.width = `${(summary.emails_found / max(summary.total_found, 1) * 100)}%`;
+        document.getElementById('funnel-bar-3').style.width = `${(summary.emails_sent / max(summary.total_found, 1) * 100)}%`;
+        document.getElementById('funnel-bar-4').style.width = `${(summary.emails_replied / max(summary.total_found, 1) * 100)}%`;
+
+        function max(a, b) { return a > b ? a : b; }
+
+        // 3. Render Top Contacts Table
+        const contactsBody = document.getElementById('contacts-body');
+        contactsBody.innerHTML = '';
+        if (data.top_contacts && data.top_contacts.length > 0) {
+            data.top_contacts.forEach(contact => {
+                const row = document.createElement('tr');
+                const scoreVal = contact.contact_quality_score || contact.quality_score;
+                const scoreClass = scoreVal >= 0.8 ? 'quality-high' : (scoreVal >= 0.6 ? 'quality-med' : 'quality-low');
+                
+                row.innerHTML = `
+                    <td style="font-weight: 600;">${contact.name}</td>
+                    <td><span style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">${contact.email}</span></td>
+                    <td>${contact.cuisine || 'Restaurant'}</td>
+                    <td><span class="quality-badge ${scoreClass}">${(scoreVal * 100).toFixed(0)}%</span></td>
+                    <td><span class="source-badge">${contact.email_source}</span></td>
+                `;
+                contactsBody.appendChild(row);
+            });
+        } else {
+            contactsBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-muted);">No contacts available</td></tr>';
+        }
+
+        // 4. Render Charts
+        renderCharts(data);
+    }
+
+    function renderCharts(data) {
+        // Destroy existing instances if they exist
+        if (sourceChart) sourceChart.destroy();
+        if (qualityChart) qualityChart.destroy();
+
+        // Data processing for Email Source
+        let sourceLabels = [];
+        let sourceValues = [];
+        if (data.email_source_breakdown && data.email_source_breakdown.data) {
+            data.email_source_breakdown.data.forEach(item => {
+                sourceLabels.push(item[0]);
+                sourceValues.push(item[1]);
+            });
+        }
+
+        // Source Chart (Bar)
+        const ctxSource = document.getElementById('sourceChart').getContext('2d');
+        sourceChart = new Chart(ctxSource, {
+            type: 'bar',
+            data: {
+                labels: sourceLabels,
+                datasets: [{
+                    label: 'Discovered Contacts',
+                    data: sourceValues,
+                    backgroundColor: 'rgba(6, 182, 212, 0.6)',
+                    borderColor: 'rgba(6, 182, 212, 1)',
+                    borderWidth: 1.5,
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                        ticks: { color: '#9ca3af' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { color: '#9ca3af' }
+                    }
+                }
+            }
+        });
+
+        // Data processing for Quality Distribution
+        let qualityLabels = [];
+        let qualityValues = [];
+        if (data.quality_distribution && data.quality_distribution.data) {
+            data.quality_distribution.data.forEach(item => {
+                qualityLabels.push(item[0]);
+                qualityValues.push(item[1]);
+            });
+        }
+
+        // Quality Chart (Doughnut)
+        const ctxQuality = document.getElementById('qualityChart').getContext('2d');
+        qualityChart = new Chart(ctxQuality, {
+            type: 'doughnut',
+            data: {
+                labels: qualityLabels,
+                datasets: [{
+                    data: qualityValues,
+                    backgroundColor: [
+                        'rgba(16, 185, 129, 0.7)',
+                        'rgba(245, 158, 11, 0.7)',
+                        'rgba(139, 92, 246, 0.7)',
+                        'rgba(239, 68, 68, 0.7)'
+                    ],
+                    borderColor: 'rgba(11, 15, 25, 1)',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                        labels: { color: '#f3f4f6', font: { family: 'Outfit' } }
+                    }
+                }
+            }
+        });
+    }
+
+    // Initial Load
+    window.addEventListener('DOMContentLoaded', loadData);
+</script>
+
+</body>
+</html>

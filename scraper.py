@@ -88,7 +88,7 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True):
         confidence = 0.0
         
         if result:
-            email, email_source, confidence = result
+            email_source, email, confidence = result
         else:
             # Check OSM data as fallback
             if business.get("email"):

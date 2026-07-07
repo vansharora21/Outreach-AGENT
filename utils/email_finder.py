@@ -241,7 +241,7 @@ def find_email_via_google_search(business_name: str, domain: str) -> Optional[Tu
 
 
 def find_email_multi_strategy(business_name: str, website: str, domain: str = None,
-                             business_type: str = "generic") -> Optional[Tuple[str, float]]:
+                             business_type: str = "generic") -> Optional[Tuple[str, str, float]]:
     """
     Try multiple strategies to find email.
     Returns (email, source, confidence_score) with highest confidence.

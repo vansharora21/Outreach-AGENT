@@ -17,26 +17,16 @@ EXCLUDE_CUISINES = [
 
 def filter_no_website(restaurants: List[Dict]) -> List[Dict]:
     """
-    Filter restaurants that don't have a website.
-    For Overpass API data, we also filter by quality metrics.
-    
-    Args:
-        restaurants: List of restaurant dictionaries from Overpass API
-    
-    Returns:
-        List of filtered restaurants without websites
+    Flag restaurants on whether they have a website rather than dropping them.
+    Adds a 'has_website' key (bool) to each restaurant dictionary.
     """
-    filtered = []
+    processed = []
 
     for restaurant in restaurants:
-        # Skip if already has a website
-        if restaurant.get("website"):
-            continue
-        
-        # Restaurant has no website - keep it!
-        filtered.append(restaurant)
+        restaurant["has_website"] = bool(restaurant.get("website"))
+        processed.append(restaurant)
 
-    return filtered
+    return processed
 
 
 def calculate_contact_quality_score(restaurant: Dict) -> float:
@@ -70,6 +60,11 @@ def calculate_contact_quality_score(restaurant: Dict) -> float:
     # Penalty for excluded cuisines
     if any(ec in cuisine for ec in EXCLUDE_CUISINES):
         score -= 0.2
+        
+    # +0.1 if does NOT have website (target businesses without website)
+    has_web = restaurant.get("has_website") if "has_website" in restaurant else bool(restaurant.get("website"))
+    if not has_web:
+        score += 0.1
     
     return min(score, 1.0)  # Cap at 1.0
 

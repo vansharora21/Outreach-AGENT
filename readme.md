@@ -4,14 +4,28 @@
 
 ---
 
+## 📊 Campaign Analytics Showcase Dashboard
+
+The agent now includes a beautiful, interactive, and fully responsive **Showcase Dashboard** at `dashboard.html` that visualizes lead funnels, cuisine performance, lead quality distribution, and email sources directly from the SQL database:
+
+* **Desktop Layout**: Features side-by-side funnel progression cards, high-quality target tables, and Chart.js distribution charts.
+* **Mobile Responsive**: Dynamically adjusts using CSS flex/grid media queries to fit mobile, tablet, and desktop screens perfectly.
+* **Live / Demo Toggle**: Features an interactive switch to view simulated campaign demo outreach statistics or live SQL database records.
+
+![1783437309980](image/readme/1783437309980.png)
+
+---
+
 ## ⚡ Quick Start (5 Minutes)
 
 ### 1. Install Dependencies
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ### 2. Set Up Environment
+
 ```bash
 # Copy example file
 cp .env.example .env
@@ -22,6 +36,7 @@ cp .env.example .env
 ```
 
 ### 3. Run First Campaign
+
 ```bash
 # Step 1: Find businesses and emails
 python core/workflow.py --scrape --type=restaurant
@@ -32,6 +47,7 @@ python core/workflow.py --scrape --type=restaurant
 ```
 
 ### 4. Check Results
+
 ```bash
 # View statistics
 python core/workflow.py --stats
@@ -46,15 +62,15 @@ python core/workflow.py --export
 
 ## 📚 Documentation
 
-| Guide | Purpose |
-|-------|---------|
-| **[ARCHITECTURE.md](ARCHITECTURE.md)** | 📁 Folder structure & how code is organized |
-| **[QUICK_START.md](docs/QUICK_START.md)** | ⚡ Get running in 5 minutes |
-| **[EMAIL_FINDING_STRATEGY.md](EMAIL_FINDING_STRATEGY.md)** | 🎯 How the email discovery flow works |
-| **[MULTI_BUSINESS_GUIDE.md](MULTI_BUSINESS_GUIDE.md)** | 🏢 Use for restaurants, tech, HR, etc. |
-| **[docs/API_KEYS.md](docs/API_KEYS.md)** | 🔑 Setup optional lookup and message tools |
-| **[docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)** | 🗄️ SQLite database structure |
-| **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)** | 🐛 Fix common errors |
+| Guide                                                           | Purpose                                     |
+| --------------------------------------------------------------- | ------------------------------------------- |
+| **[ARCHITECTURE.md](ARCHITECTURE.md)**                     | 📁 Folder structure & how code is organized |
+| **[QUICK_START.md](docs/QUICK_START.md)**                  | ⚡ Get running in 5 minutes                 |
+| **[EMAIL_FINDING_STRATEGY.md](EMAIL_FINDING_STRATEGY.md)** | 🎯 How the email discovery flow works       |
+| **[MULTI_BUSINESS_GUIDE.md](MULTI_BUSINESS_GUIDE.md)**     | 🏢 Use for restaurants, tech, HR, etc.      |
+| **[docs/API_KEYS.md](docs/API_KEYS.md)**                   | 🔑 Setup optional lookup and message tools  |
+| **[docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md)**     | 🗄️ SQLite database structure              |
+| **[docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md)**     | 🐛 Fix common errors                        |
 
 ---
 
@@ -142,7 +158,7 @@ RESTAURANT AGENT/
 ```
 
 **See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed folder breakdown!**
----
+--------------------------------------------------
 
 ## 🚀 Common Tasks
 
@@ -177,6 +193,7 @@ python core/workflow.py --followup
 
 1. Edit `config/search_config.py`
 2. Add new configuration:
+
 ```python
 MY_BUSINESS_TYPE = {
     "name": "my_type",
@@ -184,7 +201,9 @@ MY_BUSINESS_TYPE = {
     "email_patterns": ["info@", "contact@"],
 }
 ```
+
 3. Use it:
+
 ```bash
 python core/workflow.py --scrape --type=my_type
 ```
@@ -195,13 +214,13 @@ python core/workflow.py --scrape --type=my_type
 
 ### 5-Strategy Discovery System
 
-| # | Strategy | Success Rate | Speed |
-|---|----------|-------------|-------|
-| 1️⃣ | Website Scraping | 70-90% | Fast |
-| 2️⃣ | Clearbit API | 95% | Fast |
-| 3️⃣ | Hunter.io API | 80-95% | Fast |
-| 4️⃣ | Email Patterns | 50-60% | Very Fast |
-| 5️⃣ | OSM Data | 80% | Fast |
+| #     | Strategy         | Success Rate | Speed     |
+| ----- | ---------------- | ------------ | --------- |
+| 1️⃣ | Website Scraping | 70-90%       | Fast      |
+| 2️⃣ | Clearbit API     | 95%          | Fast      |
+| 3️⃣ | Hunter.io API    | 80-95%       | Fast      |
+| 4️⃣ | Email Patterns   | 50-60%       | Very Fast |
+| 5️⃣ | OSM Data         | 80%          | Fast      |
 
 **Result: strong coverage through layered discovery methods**
 
@@ -289,13 +308,13 @@ python cli.py --list-types
 
 ### CSV Files (in `results/` folder)
 
-| File | Contains | Use Case |
-|------|----------|----------|
-| `contacts_*.csv` | All businesses with emails | Import to CRM |
-| `campaigns_*.csv` | All emails sent | Track deliveries |
-| `engagement_*.csv` | Opens, clicks, replies | Measure ROI |
-| `do_not_contact_*.csv` | Unsubscribes | Compliance |
-| `summary_report_*.csv` | Statistics & metrics | Analysis |
+| File                     | Contains                   | Use Case         |
+| ------------------------ | -------------------------- | ---------------- |
+| `contacts_*.csv`       | All businesses with emails | Import to CRM    |
+| `campaigns_*.csv`      | All emails sent            | Track deliveries |
+| `engagement_*.csv`     | Opens, clicks, replies     | Measure ROI      |
+| `do_not_contact_*.csv` | Unsubscribes               | Compliance       |
+| `summary_report_*.csv` | Statistics & metrics       | Analysis         |
 
 ---
 
@@ -304,6 +323,7 @@ python cli.py --list-types
 SQLite database automatically created on first run: `data/agent.db`
 
 **Tables:**
+
 - `contacts` - Business info, emails, quality scores
 - `campaigns` - Sent emails, delivery status
 - `email_tracking` - Opens, clicks, replies
@@ -316,33 +336,39 @@ See [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) for details.
 ## 🎯 Features
 
 ✅ **Web Scraping**
+
 - Finds businesses using OpenStreetMap (free, no API key)
 - Filters by criteria (website, quality, type)
 
 ✅ **Layered Email Discovery**
+
 - Website scraping
 - Optional lookup services
 - Pattern-based matching
 - OpenStreetMap data
 
 ✅ **Message Generation**
+
 - Personalized outreach templates
 - Type-specific templates (restaurants, tech, HR)
 - Fallback templates if the generator is unavailable
 
 ✅ **Email Automation**
+
 - Sends via Gmail SMTP
 - Rate limited (ethical sending)
 - Automatic follow-ups (Day 3, 7)
 - Email tracking (opens, clicks)
 
 ✅ **CRM Integration**
+
 - Export to CSV
 - Quality scoring
 - Engagement tracking
 - Confidence scores
 
 ✅ **Business Type Support**
+
 - 🍽️ Restaurants
 - 💻 Tech/Software Companies
 - 👥 HR/Recruitment
@@ -350,6 +376,7 @@ See [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) for details.
 - 🔧 Service Businesses
 
 ✅ **Analytics**
+
 - Email finding success rate
 - Campaign statistics
 - Engagement metrics
@@ -360,16 +387,19 @@ See [docs/DATABASE_SCHEMA.md](docs/DATABASE_SCHEMA.md) for details.
 ## 🐛 Troubleshooting
 
 ### ❌ "No businesses found"
+
 - Check your `LOCATION_COORDS` in `.env`
 - Use format: `"40.7128,-74.0060"` (lat,lon)
 - Try larger radius in scraper.py
 
 ### ❌ "Gmail authentication failed"
+
 - Use [App Password](https://myaccount.google.com/apppasswords)
 - Don't use regular Gmail password
 - Enable 2FA first
 
 ### ❌ "No emails found"
+
 - Normal in some areas
 - Try lowering `min_quality_score`
 - Add Clearbit/Hunter API keys for better accuracy
@@ -391,24 +421,31 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for more solutions.
 ## 📞 Support
 
 ### Can I customize it?
+
 **Yes!** Edit `config/search_config.py` to add your own business types.
 
 ### Can I use with my CRM?
+
 **Yes!** Export to CSV and import into Salesforce, HubSpot, etc.
 
 ### Is it GDPR compliant?
+
 **Yes!** Respects unsubscribes, CAN-SPAM compliant, do-not-contact lists.
 
 ### Can I use production Gmail account?
+
 **Yes, but:** Use [App Password](https://myaccount.google.com/apppasswords), not regular password.
 
 ### How much does it cost?
+
 **Free base version:**
+
 - OpenStreetMap (free)
 - Gmail (free)
 - OpenAI (paid, but cheap - ~$0.01 per email)
 
 **Optional upgrades:**
+
 - Clearbit: 100 req/month free
 - Hunter.io: 50 req/month free
 
@@ -416,17 +453,17 @@ See [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) for more solutions.
 
 ## 📚 File Purposes (Quick Reference)
 
-| File | Purpose | Edit When... |
-|------|---------|-------------|
-| `.env` | API keys & location | Adding credentials |
-| `config/config.py` | Load environment | Changing location |
-| `config/search_config.py` | Business types | Adding new type |
-| `core/workflow.py` | Main entry point | Usually don't edit |
-| `core/scraper.py` | Find businesses | Changing search radius |
-| `core/agent.py` | Send emails | Changing email logic |
-| `utils/email_finder.py` | Find emails | Changing discovery strategy |
-| `utils/ai_email.py` | Generate emails | Changing templates |
-| `requirements.txt` | Dependencies | Installing packages |
+| File                        | Purpose             | Edit When...                |
+| --------------------------- | ------------------- | --------------------------- |
+| `.env`                    | API keys & location | Adding credentials          |
+| `config/config.py`        | Load environment    | Changing location           |
+| `config/search_config.py` | Business types      | Adding new type             |
+| `core/workflow.py`        | Main entry point    | Usually don't edit          |
+| `core/scraper.py`         | Find businesses     | Changing search radius      |
+| `core/agent.py`           | Send emails         | Changing email logic        |
+| `utils/email_finder.py`   | Find emails         | Changing discovery strategy |
+| `utils/ai_email.py`       | Generate emails     | Changing templates          |
+| `requirements.txt`        | Dependencies        | Installing packages         |
 
 ---
 
@@ -469,6 +506,7 @@ START HERE ↓
 ## 📈 Expected Results
 
 ### Email Finding Rate
+
 - **Restaurants:** 70-85% success
 - **Tech Companies:** 80-90% success
 - **HR Companies:** 75-85% success
@@ -476,6 +514,7 @@ START HERE ↓
 - **Service Businesses:** 65-75% success
 
 ### Response Rates
+
 - **Typical:** 5-15% open rate
 - **Good:** 15-25% open rate
 - **Excellent:** 25%+ open rate
@@ -493,7 +532,7 @@ START HERE ↓
 Then read the guides to understand what's happening!
 
 **Let's find some emails!** 🚀
----
+--------------------------
 
 ## 📈 Metrics & KPIs
 
@@ -515,6 +554,7 @@ Average Response Time:        2.3 days
 ### Rate Limiting
 
 Gmail has **rate limits**:
+
 - Max 300 emails per day from new account
 - 4-second delay between emails (enforced by agent)
 - Monitor Gmail's "Security alert" emails
@@ -522,6 +562,7 @@ Gmail has **rate limits**:
 ### Email Deliverability
 
 To improve email success rate:
+
 - ✅ Use warm-up period (small test before bulk send)
 - ✅ Add unsubscribe link in emails (compliance)
 - ✅ Monitor spam folder for bounces
@@ -544,6 +585,7 @@ To improve email success rate:
 ```
 
 **Fix:**
+
 1. Generate App Password (see setup section above)
 2. Ensure 2FA is enabled
 3. Use the 16-character app password (no spaces)
@@ -555,6 +597,7 @@ To improve email success rate:
 ```
 
 **Fix:**
+
 1. Verify `LOCATION_COORDS` in `.env` is correct
 2. Format: `"40.7128,-74.0060"` (latitude, longitude)
 3. Check if restaurant exists on OpenStreetMap
@@ -566,6 +609,7 @@ To improve email success rate:
 ```
 
 **Fix:**
+
 - Overpass API is rate-limited and sometimes overloaded
 - Wait 30 minutes and try again
 - Reduce search radius in `config.py`
@@ -577,6 +621,7 @@ To improve email success rate:
 ```
 
 **Fix:**
+
 1. Check `OPENAI_API_KEY` in `.env`
 2. Verify key is active at [platform.openai.com](https://platform.openai.com)
 3. Ensure you have credits on your OpenAI account
@@ -601,6 +646,7 @@ To improve email success rate:
 ## 📞 Support
 
 For issues or questions:
+
 1. Check the **Troubleshooting** section above
 2. Review `.env` file setup
 3. Verify all dependencies with `pip list`
@@ -615,6 +661,7 @@ This project is open-source and available for personal/commercial use.
 ---
 
 **Happy outreach! 🎉** Feel free to customize the agent for your specific use case.
+
 ```bash
 python -m venv venv
 venv\Scripts\activate
@@ -819,4 +866,3 @@ Run:
 ```bash
 python agent.py
 ```
-
