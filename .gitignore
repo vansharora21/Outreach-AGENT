@@ -1,4 +1,27 @@
+# Environment settings
 .env
+.venv/
+venv/
+ENV/
+
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local databases & run data
+data/agent.db
+logs/
+*.log
+
+# Results and scratch files
 results/*.csv
 results/*.json
 !results/.gitkeep
+scratch/
