@@ -3,6 +3,7 @@ import requests
 from typing import Optional, List, Tuple
 from bs4 import BeautifulSoup
 import json
+import time
 
 EMAIL_REGEX = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
 
@@ -159,25 +160,31 @@ def find_email_via_clearbit(domain: str) -> Optional[Tuple[str, float]]:
     """
     Query Clearbit API (free tier available) for email.
     Returns (email, confidence_score)
-    
-    Free tier: 100 requests/month
     """
-    try:
-        # Clearbit Prospector API (free)
-        url = f"https://prospector.clearbit.com/v1/people?domain={domain}&page_size=1"
-        
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("results"):
-                person = data["results"][0]
-                email = person.get("email")
-                if email and is_valid_business_email(email):
-                    return (email, 0.95)  # High confidence from Clearbit
-    
-    except Exception as e:
-        pass  # Free API may not be available
-    
+    url = f"https://prospector.clearbit.com/v1/people?domain={domain}&page_size=1"
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("results"):
+                    person = data["results"][0]
+                    email = person.get("email")
+                    if email and is_valid_business_email(email):
+                        return (email, 0.95)
+                return None
+            elif response.status_code in [401, 403, 404, 422]:
+                # Permanent credential/request errors
+                return None
+            else:
+                raise requests.exceptions.HTTPError(f"HTTP status {response.status_code}")
+        except (requests.exceptions.RequestException, Exception) as e:
+            if attempt < max_attempts - 1:
+                wait_time = 5 * (3 ** attempt)
+                time.sleep(wait_time)
+            else:
+                pass
     return None
 
 
@@ -186,25 +193,30 @@ def find_email_via_hunter(domain: str) -> Optional[Tuple[str, float]]:
     Query Hunter.io API (free tier: 50 requests/month).
     Returns (email, confidence_score)
     """
-    try:
-        # Hunter.io API
-        url = f"https://api.hunter.io/v2/domain-search?domain={domain}&limit=1"
-        # Note: Requires API key in production, but has free tier with limited requests
-        
-        response = requests.get(url, timeout=5)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get("data", {}).get("emails"):
-                email_info = data["data"]["emails"][0]
-                email = email_info.get("value")
-                confidence = email_info.get("confidence", 0.8) / 100  # Normalize to 0-1
-                
-                if email and is_valid_business_email(email):
-                    return (email, min(confidence, 0.95))
-    
-    except Exception as e:
-        pass
-    
+    url = f"https://api.hunter.io/v2/domain-search?domain={domain}&limit=1"
+    max_attempts = 3
+    for attempt in range(max_attempts):
+        try:
+            response = requests.get(url, timeout=5)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get("data", {}).get("emails"):
+                    email_info = data["data"]["emails"][0]
+                    email = email_info.get("value")
+                    confidence = email_info.get("confidence", 0.8) / 100  # Normalize to 0-1
+                    if email and is_valid_business_email(email):
+                        return (email, min(confidence, 0.95))
+                return None
+            elif response.status_code in [401, 403, 404, 422]:
+                return None
+            else:
+                raise requests.exceptions.HTTPError(f"HTTP status {response.status_code}")
+        except (requests.exceptions.RequestException, Exception) as e:
+            if attempt < max_attempts - 1:
+                wait_time = 5 * (3 ** attempt)
+                time.sleep(wait_time)
+            else:
+                pass
     return None
 
 

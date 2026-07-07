@@ -15,7 +15,7 @@ from search_config import get_config
 from config import LOCATION_COORDS
 
 
-def scrape_businesses(business_type: str = "restaurant", verbose: bool = True):
+def scrape_businesses(business_type: str = "restaurant", verbose: bool = True, test_mode: bool = False):
     """
     Step 1: Scrape businesses and find emails.
     
@@ -35,10 +35,15 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True):
     if verbose:
         print("📍 Step 1: Searching for businesses using OpenStreetMap...")
     
-    businesses = get_restaurants(
-        location=LOCATION_COORDS,
-        radius=3000  # 3km radius
-    )
+    try:
+        businesses = get_restaurants(
+            location=LOCATION_COORDS,
+            radius=5000,  # 5km radius to match agent.py
+            test_mode=test_mode
+        )
+    except TimeoutError as e:
+        print(f"\n❌ Overpass API Query Failed: {e}")
+        return (0, 0, [])
     
     if not businesses:
         print("❌ No businesses found. Check your location coordinates.")
@@ -75,26 +80,49 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True):
         website = business.get("website")
         domain = website.replace("http://", "").replace("https://", "").split("/")[0] if website else None
         
-        # Try to find email
-        result = find_email_multi_strategy(
-            business_name=name,
-            website=website,
-            domain=domain,
-            business_type=business_type
-        )
-        
+        # Check if already processed and cached in database
+        import sqlite3
+        cached_email = None
+        cached_source = None
+        cached_conf = 0.0
+        try:
+            conn = sqlite3.connect("data/agent.db")
+            cursor = conn.cursor()
+            cursor.execute("SELECT email, email_source, confidence_score FROM contacts WHERE osm_id = ?", (str(business.get("osm_id")),))
+            cached = cursor.fetchone()
+            conn.close()
+            if cached and cached[0]:
+                cached_email, cached_source, cached_conf = cached[0], cached[1], cached[2]
+        except Exception:
+            pass
+
         email = None
         email_source = None
         confidence = 0.0
-        
-        if result:
-            email_source, email, confidence = result
+
+        if cached_email:
+            email = cached_email
+            email_source = cached_source
+            confidence = cached_conf
+            if verbose:
+                print(f"⏭️  Reusing cached email for {name}: {email} (from {email_source})")
         else:
-            # Check OSM data as fallback
-            if business.get("email"):
-                email = business["email"]
-                email_source = "osm"
-                confidence = 0.8
+            # Try to find email
+            result = find_email_multi_strategy(
+                business_name=name,
+                website=website,
+                domain=domain,
+                business_type=business_type
+            )
+            
+            if result:
+                email_source, email, confidence = result
+            else:
+                # Check OSM data as fallback
+                if business.get("email"):
+                    email = business["email"]
+                    email_source = "osm"
+                    confidence = 0.8
         
         # Skip if on do-not-contact list
         if email and is_on_do_not_contact_list(email=email):

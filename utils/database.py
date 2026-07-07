@@ -190,7 +190,7 @@ def get_contacts_for_outreach(limit: int = 50, exclude_contacted: bool = True) -
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
     
-    query = "SELECT * FROM contacts WHERE email IS NOT NULL"
+    query = "SELECT * FROM contacts WHERE email IS NOT NULL AND email NOT IN (SELECT email FROM do_not_contact WHERE email IS NOT NULL)"
     
     if exclude_contacted:
         query += " AND id NOT IN (SELECT DISTINCT contact_id FROM campaigns)"

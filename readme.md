@@ -12,7 +12,7 @@ The agent now includes a beautiful, interactive, and fully responsive **Showcase
 * **Mobile Responsive**: Dynamically adjusts using CSS flex/grid media queries to fit mobile, tablet, and desktop screens perfectly.
 * **Live / Demo Toggle**: Features an interactive switch to view simulated campaign demo outreach statistics or live SQL database records.
 
-![1783437309980](image/readme/1783437309980.png)
+![Outreach Showcase Dashboard](results/dashboard_full.png)
 
 ---
 

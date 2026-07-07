@@ -4,8 +4,8 @@ import time
 
 # Multiple Overpass API endpoints (for redundancy)
 OVERPASS_ENDPOINTS = [
-    "https://overpass.private.coffee/api/interpreter",
     "https://overpass-api.de/api/interpreter",
+    "https://overpass.private.coffee/api/interpreter",
     "https://overpass.osm.ch/api/interpreter",
     "https://z.overpass-api.de/api/interpreter"
 ]
@@ -79,7 +79,7 @@ MOCK_RESTAURANTS = [
     }
 ]
 
-def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
+def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True) -> List[Dict]:
     """
     Search for nearby restaurants using Overpass API (OpenStreetMap).
     Includes retry logic with exponential backoff and fallback to mock data.
@@ -87,6 +87,7 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
     Args:
         location: Tuple of (latitude, longitude)
         radius: Search radius in meters (default: 3000m = 3km)
+        test_mode: If False, raises TimeoutError instead of falling back to mock data
     
     Returns:
         List of restaurant dictionaries with name, lat, lon, and place_id
@@ -107,7 +108,7 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
     
     restaurants = []
     retry_count = 0
-    max_retries = 2
+    max_retries = 3
     
     # Try each endpoint with retry logic
     for endpoint in OVERPASS_ENDPOINTS:
@@ -175,7 +176,7 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
             except requests.exceptions.Timeout:
                 print(f"⏱️ Timeout on {endpoint} (attempt {attempt+1}/{max_retries})...")
                 if attempt < max_retries - 1:
-                    wait_time = 5 * (attempt + 1)
+                    wait_time = 5 * (3 ** attempt)
                     print(f"⏳ Waiting {wait_time}s before retry...")
                     time.sleep(wait_time)
                 continue
@@ -183,7 +184,7 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
             except requests.exceptions.ConnectionError:
                 print(f"🔌 Connection error on {endpoint} (attempt {attempt+1}/{max_retries})...")
                 if attempt < max_retries - 1:
-                    wait_time = 5 * (attempt + 1)
+                    wait_time = 5 * (3 ** attempt)
                     print(f"⏳ Waiting {wait_time}s before retry...")
                     time.sleep(wait_time)
                 continue
@@ -207,6 +208,9 @@ def get_restaurants(location: tuple, radius: int = 3000) -> List[Dict]:
                 print(f"❌ Error on {endpoint}: {e}")
                 break
     
+    if not test_mode:
+        raise TimeoutError("❌ All Overpass API endpoints failed or timed out. Scraping run aborted to prevent incorrect outreach.")
+        
     # If all APIs failed, use mock data for testing
     print("\n⚠️ All Overpass endpoints failed. Using mock data for testing...")
     print("💡 Tips to fix:")

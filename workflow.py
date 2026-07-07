@@ -43,7 +43,7 @@ def print_main_menu():
     print("="*60 + "\n")
 
 
-def step1_scrape(business_type: str = "restaurant"):
+def step1_scrape(business_type: str = "restaurant", test_mode: bool = False):
     """Step 1: Web scraping - Find businesses and emails."""
     print("\n" + "="*70)
     print("⏱️  STEP 1: WEB SCRAPING - Finding businesses and extracting emails")
@@ -51,7 +51,8 @@ def step1_scrape(business_type: str = "restaurant"):
     
     total, emails_found, results = scrape_businesses(
         business_type=business_type,
-        verbose=True
+        verbose=True,
+        test_mode=test_mode
     )
     
     if not results:
@@ -135,7 +136,35 @@ def step3_view_results():
     print()
 
 
+import os
+from datetime import datetime
+
+class ExecutionLogger:
+    def __init__(self, filename):
+        self.terminal = sys.stdout
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        self.log = open(filename, "a", encoding="utf-8")
+
+    def write(self, message):
+        self.terminal.write(message)
+        self.log.write(message)
+        self.log.flush()
+
+    def flush(self):
+        self.terminal.flush()
+        self.log.flush()
+
+
 def main():
+    # Redirect stdout and stderr to a timestamped file
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    log_file = f"logs/run_{timestamp}.log"
+    logger = ExecutionLogger(log_file)
+    sys.stdout = logger
+    sys.stderr = logger
+    
+    print(f"📝 Logging execution to {log_file}\n")
+
     parser = argparse.ArgumentParser(
         description="🚀 Multi-Business Outreach Workflow",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -202,7 +231,7 @@ Follow-ups:
     
     # Step 1: Scrape
     if args.scrape:
-        success = step1_scrape(business_type=args.type)
+        success = step1_scrape(business_type=args.type, test_mode=args.test)
         if not success:
             return
         

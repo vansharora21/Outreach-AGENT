@@ -45,7 +45,16 @@ def main():
     cursor.execute("SELECT COUNT(*) FROM email_tracking WHERE event_type = 'replied'")
     total_replied = cursor.fetchone()[0]
     
+    cursor.execute("SELECT COUNT(*) FROM campaigns WHERE status = 'bounced'")
+    total_bounced = cursor.fetchone()[0]
+    
     conn.close()
+    
+    # Calculate rates
+    bounce_rate = round(100.0 * total_bounced / max(total_campaigns, 1), 1)
+    # Open rate is calculated against delivered emails (sent minus bounced)
+    delivered = total_campaigns - total_bounced
+    open_rate = round(100.0 * total_opened / max(delivered, 1), 1)
     
     # Generate JSON data structure
     dashboard_data = {
@@ -55,6 +64,9 @@ def main():
             "emails_sent": total_campaigns,
             "emails_opened": total_opened,
             "emails_replied": total_replied,
+            "emails_bounced": total_bounced,
+            "bounce_rate": bounce_rate,
+            "open_rate": open_rate,
             "email_finding_rate": round(100.0 * emails_found / max(total_found, 1), 1)
         },
         "cuisine_performance": get_campaign_performance_by_cuisine(),

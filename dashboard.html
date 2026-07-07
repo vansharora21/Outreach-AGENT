@@ -126,17 +126,23 @@
         /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(6, 1fr);
             gap: 1.5rem;
         }
 
-        @media (max-width: 900px) {
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
 
-        @media (max-width: 550px) {
+        @media (max-width: 480px) {
             .stats-grid {
                 grid-template-columns: 1fr;
             }
@@ -173,6 +179,8 @@
         .stat-card.purple::before { background: var(--accent-purple); }
         .stat-card.pink::before { background: var(--accent-pink); }
         .stat-card.green::before { background: var(--accent-green); }
+        .stat-card.orange::before { background: var(--accent-orange); }
+        .stat-card.red::before { background: #ef4444; }
 
         .stat-title {
             font-size: 0.9rem;
@@ -417,10 +425,20 @@
             <div class="stat-value" id="val-sent">0</div>
             <div class="stat-sub">Personalized emails</div>
         </div>
+        <div class="stat-card orange">
+            <div class="stat-title">Open Rate</div>
+            <div class="stat-value" id="val-open-rate">0%</div>
+            <div class="stat-sub" id="val-opened-count">0 opened</div>
+        </div>
         <div class="stat-card green">
             <div class="stat-title">Campaign Replies</div>
             <div class="stat-value" id="val-replied">0</div>
             <div class="stat-sub" id="val-reply-rate">0% response rate</div>
+        </div>
+        <div class="stat-card red">
+            <div class="stat-title">Bounce Rate</div>
+            <div class="stat-value" id="val-bounce-rate">0%</div>
+            <div class="stat-sub" id="val-bounced-count">0 bounced</div>
         </div>
     </div>
 
@@ -525,7 +543,7 @@
 <script>
     // Live database data loaded from JSON
     let liveData = {
-        summary: { total_found: 0, emails_found: 0, emails_sent: 0, emails_opened: 0, emails_replied: 0, email_finding_rate: 0 },
+        summary: { total_found: 0, emails_found: 0, emails_sent: 0, emails_opened: 0, emails_replied: 0, emails_bounced: 0, bounce_rate: 0, open_rate: 0, email_finding_rate: 0 },
         cuisine_performance: { data: [] },
         email_source_breakdown: { data: [] },
         quality_distribution: { data: [] },
@@ -540,6 +558,9 @@
             emails_sent: 85,
             emails_opened: 52,
             emails_replied: 12,
+            emails_bounced: 4,
+            bounce_rate: 4.7,
+            open_rate: 64.2,
             email_finding_rate: 61.2
         },
         email_source_breakdown: {
@@ -620,6 +641,14 @@
         
         const replyRate = summary.emails_sent > 0 ? (100 * summary.emails_replied / summary.emails_sent).toFixed(1) : "0.0";
         document.getElementById('val-reply-rate').innerText = `${replyRate}% response rate`;
+
+        const bounceRate = summary.bounce_rate !== undefined ? summary.bounce_rate : (summary.emails_sent > 0 ? (100 * (summary.emails_bounced || 0) / summary.emails_sent).toFixed(1) : "0.0");
+        document.getElementById('val-bounce-rate').innerText = `${bounceRate}%`;
+        document.getElementById('val-bounced-count').innerText = `${summary.emails_bounced || 0} bounced`;
+
+        const openRate = summary.open_rate !== undefined ? summary.open_rate : (summary.emails_sent > (summary.emails_bounced || 0) ? (100 * (summary.emails_opened || 0) / (summary.emails_sent - (summary.emails_bounced || 0))).toFixed(1) : "0.0");
+        document.getElementById('val-open-rate').innerText = `${openRate}%`;
+        document.getElementById('val-opened-count').innerText = `${summary.emails_opened || 0} opened`;
 
         // 2. Funnel Analysis
         document.getElementById('funnel-val-1').innerText = summary.total_found;

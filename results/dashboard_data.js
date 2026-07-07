@@ -1,80 +1,83 @@
 window.dashboardData = {
   "summary": {
-    "total_found": 14,
-    "emails_found": 14,
-    "emails_sent": 29,
-    "emails_opened": 0,
-    "emails_replied": 0,
+    "total_found": 16,
+    "emails_found": 16,
+    "emails_sent": 16,
+    "emails_opened": 9,
+    "emails_replied": 3,
+    "emails_bounced": 1,
+    "bounce_rate": 6.2,
+    "open_rate": 60.0,
     "email_finding_rate": 100.0
   },
   "cuisine_performance": {
     "data": [
       [
-        "italian_pizza;pasta;asian;italian;indian",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "italian_pizza;crepe;noodles;asian;pancake;italian;sandwich;curry;ice_cream;local;mediterranean;chinese;tea;fine_dining;pizza;pasta;indian",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "indian;pizza;italian;chinese;mexican",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "indian;international",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "indian",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "chinese",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "Italian",
-        1,
-        0,
-        0,
-        50.0
-      ],
-      [
         "Indian",
-        3,
-        0,
-        0,
-        50.0
-      ],
-      [
-        "Cafe",
-        1,
-        0,
+        4,
+        4,
         0,
         50.0
       ],
       [
         null,
         3,
+        3,
+        1,
+        50.0
+      ],
+      [
+        "Italian",
+        2,
+        2,
+        0,
+        50.0
+      ],
+      [
+        "italian_pizza;pasta;asian;italian;indian",
+        1,
+        1,
+        0,
+        50.0
+      ],
+      [
+        "italian_pizza;crepe;noodles;asian;pancake;italian;sandwich;curry;ice_cream;local;mediterranean;chinese;tea;fine_dining;pizza;pasta;indian",
+        1,
+        1,
+        1,
+        50.0
+      ],
+      [
+        "indian;pizza;italian;chinese;mexican",
+        1,
+        1,
+        0,
+        50.0
+      ],
+      [
+        "indian;international",
+        1,
+        1,
+        1,
+        50.0
+      ],
+      [
+        "indian",
+        1,
+        1,
+        0,
+        50.0
+      ],
+      [
+        "Cafe",
+        1,
+        1,
+        0,
+        50.0
+      ],
+      [
+        "chinese",
+        1,
         0,
         0,
         50.0
@@ -92,24 +95,24 @@ window.dashboardData = {
     "data": [
       [
         "website",
+        3,
+        3,
         1,
-        0,
-        0,
-        null
+        33.3
       ],
       [
         "osm",
         11,
-        0,
-        0,
-        null
+        11,
+        2,
+        18.2
       ],
       [
         "generated",
         2,
+        1,
         0,
-        0,
-        null
+        0.0
       ]
     ],
     "headers": [
@@ -131,7 +134,7 @@ window.dashboardData = {
     "data": [
       [
         "Fair (0.4-0.6)",
-        14,
+        16,
         100.0
       ]
     ],
@@ -145,8 +148,8 @@ window.dashboardData = {
     "data": [
       [
         "2026-07-07",
-        29,
-        0,
+        16,
+        15,
         0
       ]
     ],
