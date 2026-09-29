@@ -10,12 +10,6 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 EMAIL_ADDRESS = os.getenv("EMAIL_ADDRESS")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-# Debug: Print password length to verify it's loaded
-if EMAIL_PASSWORD:
-    print(f"✅ Email password loaded ({len(EMAIL_PASSWORD)} chars)")
-else:
-    print("⚠️ EMAIL_PASSWORD not found in .env")
-
 # Location coordinates (latitude, longitude)
 # Format: "26.9124,75.7873" from .env file
 coords_string = os.getenv("LOCATION_COORDS", "40.7128,-74.0060")

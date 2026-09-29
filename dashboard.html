@@ -402,7 +402,7 @@
         </div>
         <div class="controls">
             <div class="toggle-container" onclick="toggleDataset()">
-                <button id="btn-live" class="toggle-btn active">Live Database</button>
+                <button id="btn-live" class="toggle-btn active">Portfolio Snapshot</button>
                 <button id="btn-demo" class="toggle-btn">Demo Campaign</button>
             </div>
         </div>
@@ -550,7 +550,7 @@
         top_contacts: []
     };
 
-    // Simulated Demo Campaign data for showcase purposes
+    // Synthetic demo campaign data for the public portfolio dashboard.
     const demoData = {
         summary: {
             total_found: 139,
@@ -581,15 +581,15 @@
             ]
         },
         top_contacts: [
-            { name: "Jaipur modern", email: "info@jaipurmodern.com", cuisine: "Italian, Cafe", contact_quality_score: 0.9, email_source: "website" },
-            { name: "Kha'Ba bar and kitchen", email: "info@khandelahaveli.com", cuisine: "Multi-Cuisine", contact_quality_score: 0.85, email_source: "website" },
-            { name: "Kalyan Rooftop Restaurant", email: "hotelkalyan@gmail.com", cuisine: "Indian", contact_quality_score: 0.8, email_source: "website" },
-            { name: "Hotel Marc Inn", email: "hotelmarcinn@gmail.com", cuisine: "Continental", contact_quality_score: 0.78, email_source: "website" },
-            { name: "Atithiya", email: "atithiyacafe@gmail.com", cuisine: "Indian Vegetarian", contact_quality_score: 0.75, email_source: "website" }
+            { name: "Sample Lead 01", email: "lead-01@demo.invalid", cuisine: "Restaurant", contact_quality_score: 0.9, email_source: "website" },
+            { name: "Sample Lead 02", email: "lead-02@demo.invalid", cuisine: "Restaurant", contact_quality_score: 0.85, email_source: "website" },
+            { name: "Sample Lead 03", email: "lead-03@demo.invalid", cuisine: "Restaurant", contact_quality_score: 0.8, email_source: "osm" },
+            { name: "Sample Lead 04", email: "lead-04@demo.invalid", cuisine: "Service", contact_quality_score: 0.78, email_source: "manual" },
+            { name: "Sample Lead 05", email: "lead-05@demo.invalid", cuisine: "Service", contact_quality_score: 0.75, email_source: "website" }
         ]
     };
 
-    let currentDatasetType = 'live'; // 'live' or 'demo'
+    let currentDatasetType = 'live'; // portfolio snapshot or demo campaign
     let sourceChart = null;
     let qualityChart = null;
 

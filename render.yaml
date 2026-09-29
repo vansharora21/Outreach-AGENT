@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: outreach-agent-portfolio
+    runtime: static
+    buildCommand: python scripts/build_demo_site.py
+    staticPublishPath: ./dist
+    autoDeployTrigger: commit

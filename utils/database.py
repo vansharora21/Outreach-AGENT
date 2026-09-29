@@ -79,7 +79,8 @@ def init_database():
 def add_contact(name: str, email: str, phone: str = None, website: str = None,
                 cuisine: str = None, opening_hours: str = None, osm_id: str = None,
                 latitude: float = None, longitude: float = None,
-                email_source: str = "manual", confidence_score: float = 0.5) -> int:
+                email_source: str = "manual", confidence_score: float = 0.5,
+                contact_quality_score: float = 0.5) -> int:
     """Add or update a contact in the database."""
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -88,10 +89,10 @@ def add_contact(name: str, email: str, phone: str = None, website: str = None,
         cursor.execute("""
             INSERT INTO contacts 
             (osm_id, name, email, phone, website, cuisine, opening_hours, 
-             latitude, longitude, email_source, confidence_score)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+             latitude, longitude, email_source, confidence_score, contact_quality_score)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (osm_id, name, email, phone, website, cuisine, opening_hours,
-              latitude, longitude, email_source, confidence_score))
+              latitude, longitude, email_source, confidence_score, contact_quality_score))
         
         conn.commit()
         contact_id = cursor.lastrowid
@@ -101,9 +102,10 @@ def add_contact(name: str, email: str, phone: str = None, website: str = None,
         # Contact already exists, update it
         cursor.execute("""
             UPDATE contacts 
-            SET email = ?, email_source = ?, confidence_score = ?, updated_at = CURRENT_TIMESTAMP
+            SET email = ?, email_source = ?, confidence_score = ?,
+                contact_quality_score = ?, updated_at = CURRENT_TIMESTAMP
             WHERE osm_id = ?
-        """, (email, email_source, confidence_score, osm_id))
+        """, (email, email_source, confidence_score, contact_quality_score, osm_id))
         
         conn.commit()
         cursor.execute("SELECT id FROM contacts WHERE osm_id = ?", (osm_id,))
@@ -250,6 +252,18 @@ def get_campaign_stats() -> Dict:
         "total_replies": total_replied,
         "reply_rate": round((total_replied / total_sent * 100) if total_sent > 0 else 0, 2)
     }
+
+
+def count_sent_today() -> int:
+    """Return the number of live emails sent today in the local timezone."""
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute(
+        "SELECT COUNT(*) FROM campaigns WHERE status = 'sent' AND DATE(sent_at) = DATE('now', 'localtime')"
+    )
+    count = cursor.fetchone()[0]
+    conn.close()
+    return count
 
 
 def close_database():

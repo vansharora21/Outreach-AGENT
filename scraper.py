@@ -6,7 +6,7 @@ Results are saved to database for review/export before email automation.
 
 import sys
 import argparse
-from utils.search import get_restaurants
+from utils.search import get_businesses
 from utils.filter import filter_no_website, calculate_contact_quality_score, rank_restaurants
 from utils.database import init_database, add_contact, is_on_do_not_contact_list
 from utils.email_finder import find_email_multi_strategy
@@ -36,10 +36,11 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True, t
         print("📍 Step 1: Searching for businesses using OpenStreetMap...")
     
     try:
-        businesses = get_restaurants(
+        businesses = get_businesses(
             location=LOCATION_COORDS,
             radius=5000,  # 5km radius to match agent.py
-            test_mode=test_mode
+            test_mode=test_mode,
+            business_type=business_type,
         )
     except TimeoutError as e:
         print(f"\n❌ Overpass API Query Failed: {e}")
@@ -52,14 +53,16 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True, t
     if verbose:
         print(f"✅ Found {len(businesses)} businesses\n")
     
-    # Step 2: Filter businesses without websites
+    # Step 2: Flag website availability. Both groups remain eligible because a
+    # website is also a strong source for verified contact details.
     if verbose:
-        print("🧹 Step 2: Filtering businesses without websites...")
+        print("🧹 Step 2: Classifying website availability...")
     
     filtered_businesses = filter_no_website(businesses)
     
     if verbose:
-        print(f"✅ {len(filtered_businesses)} businesses have NO website\n")
+        no_website_count = sum(not business["has_website"] for business in filtered_businesses)
+        print(f"✅ {no_website_count} businesses have no website; {len(filtered_businesses) - no_website_count} have a website\n")
     
     # Step 3: Rank by quality
     if verbose:
@@ -151,7 +154,8 @@ def scrape_businesses(business_type: str = "restaurant", verbose: bool = True, t
             latitude=business.get("lat"),
             longitude=business.get("lon"),
             email_source=email_source,
-            confidence_score=confidence
+            confidence_score=confidence,
+            contact_quality_score=quality_score
         )
         
         ready_for_outreach.append({

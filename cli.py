@@ -18,7 +18,7 @@ def print_menu():
     print("🎯 MULTI-BUSINESS OUTREACH AGENT CLI")
     print("="*60)
     print("\nMain Commands:")
-    print("  1. python cli.py --initial              Start initial outreach")
+    print("  1. python cli.py --initial --test       Preview a vetted campaign")
     print("  2. python cli.py --followup             Send follow-up emails")
     print("  3. python cli.py --stats                Show campaign statistics")
     print("  4. python cli.py --export               Export all data to CSV")
@@ -30,7 +30,8 @@ def print_menu():
     
     print("\nExamples:")
     print("  python cli.py --initial --test")
-    print("  python cli.py --initial --type=restaurant")
+    print("  python agent.py --dry-run --type=restaurant")
+    print("  python agent.py --send --confirm-send --max-leads=10")
     print("  python cli.py --initial --type=solution_company")
     print("  python cli.py --initial --type=hr_company --test")
     print("  python cli.py --followup --type=restaurant")
@@ -40,6 +41,10 @@ def print_menu():
 
 
 def main():
+    # Windows terminals may default to cp1252 while this legacy CLI includes
+    # Unicode status markers. Configure output once instead of failing mid-run.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     parser = argparse.ArgumentParser(
         description="🎯 Multi-Business Outreach Agent",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -67,10 +72,15 @@ Examples:
     parser.add_argument("--init-db", action="store_true", help="Initialize database")
     parser.add_argument("--list-types", action="store_true", help="List available business types")
     parser.add_argument("--test", action="store_true", help="Test mode (don't send emails)")
+    parser.add_argument("--send", action="store_true", help="Enable live delivery for --initial")
+    parser.add_argument("--confirm-send", action="store_true", help="Required together with --send")
     parser.add_argument("--type", type=str, default="restaurant", 
                        help="Business type to search for (default: restaurant)")
     
     args = parser.parse_args()
+
+    if args.send and not args.confirm_send:
+        parser.error("--send requires --confirm-send")
     
     # Initialize database
     if args.init_db or args.initial or args.followup or args.export or args.stats:
@@ -96,7 +106,7 @@ Examples:
     # Initial outreach
     if args.initial:
         print(f"\n🚀 Starting {args.type.replace('_', ' ')} outreach campaign...\n")
-        run_initial_outreach(test_mode=args.test, business_type=args.type)
+        run_initial_outreach(test_mode=not args.send, business_type=args.type)
     
     # Follow-ups
     if args.followup:

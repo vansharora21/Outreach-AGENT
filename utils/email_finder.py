@@ -4,6 +4,7 @@ from typing import Optional, List, Tuple
 from bs4 import BeautifulSoup
 import json
 import time
+import os
 
 EMAIL_REGEX = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
 
@@ -161,11 +162,14 @@ def find_email_via_clearbit(domain: str) -> Optional[Tuple[str, float]]:
     Query Clearbit API (free tier available) for email.
     Returns (email, confidence_score)
     """
+    api_key = os.getenv("CLEARBIT_API_KEY")
+    if not api_key:
+        return None
     url = f"https://prospector.clearbit.com/v1/people?domain={domain}&page_size=1"
     max_attempts = 3
     for attempt in range(max_attempts):
         try:
-            response = requests.get(url, timeout=5)
+            response = requests.get(url, auth=(api_key, ""), timeout=5)
             if response.status_code == 200:
                 data = response.json()
                 if data.get("results"):
@@ -193,7 +197,10 @@ def find_email_via_hunter(domain: str) -> Optional[Tuple[str, float]]:
     Query Hunter.io API (free tier: 50 requests/month).
     Returns (email, confidence_score)
     """
-    url = f"https://api.hunter.io/v2/domain-search?domain={domain}&limit=1"
+    api_key = os.getenv("HUNTER_API_KEY")
+    if not api_key:
+        return None
+    url = f"https://api.hunter.io/v2/domain-search?domain={domain}&limit=1&api_key={api_key}"
     max_attempts = 3
     for attempt in range(max_attempts):
         try:

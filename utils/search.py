@@ -79,7 +79,34 @@ MOCK_RESTAURANTS = [
     }
 ]
 
-def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True) -> List[Dict]:
+# Overpass selectors are deliberately explicit rather than interpolating user
+# input into query syntax. They cover common OSM tagging for each campaign type.
+BUSINESS_FILTERS = {
+    "restaurant": ['["amenity"~"^(restaurant|cafe|bar)$"]'],
+    "solution_company": ['["office"~"^(it|software|company|consulting)$"]'],
+    "hr_company": ['["office"~"^(employment_agency|company)$"]'],
+    "ecommerce": ['["shop"]'],
+    "service_business": ['["craft"]', '["office"~"^(company|consulting)$"]'],
+}
+
+
+def build_overpass_query(location: tuple, radius: int, business_type: str = "restaurant") -> str:
+    """Build a bounded OSM query for the requested supported business type."""
+    lat, lon = location
+    filters = BUSINESS_FILTERS.get(business_type, BUSINESS_FILTERS["restaurant"])
+    selectors = "\n      ".join(
+        f"nwr{selector}(around:{radius},{lat},{lon});" for selector in filters
+    )
+    return f"""
+    [out:json][timeout:30];
+    (
+      {selectors}
+    );
+    out center;
+    """
+
+def get_businesses(location: tuple, radius: int = 3000, test_mode: bool = True,
+                   business_type: str = "restaurant") -> List[Dict]:
     """
     Search for nearby restaurants using Overpass API (OpenStreetMap).
     Includes retry logic with exponential backoff and fallback to mock data.
@@ -93,18 +120,7 @@ def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True)
         List of restaurant dictionaries with name, lat, lon, and place_id
     """
     
-    lat, lon = location
-    
-    # Overpass API query for restaurants
-    overpass_query = f"""
-    [out:json][timeout:30];
-    (
-      node["amenity"="restaurant"](around:{radius},{lat},{lon});
-      way["amenity"="restaurant"](around:{radius},{lat},{lon});
-      relation["amenity"="restaurant"](around:{radius},{lat},{lon});
-    );
-    out center;
-    """
+    overpass_query = build_overpass_query(location, radius, business_type)
     
     restaurants = []
     retry_count = 0
@@ -135,7 +151,7 @@ def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True)
                 print(f"✅ Successfully queried Overpass API")
                 
                 for element in data.get("elements", []):
-                    name = element.get("tags", {}).get("name", "Unknown Restaurant")
+                    name = element.get("tags", {}).get("name", "Unknown Business")
                     
                     # Get coordinates
                     if "lat" in element and "lon" in element:
@@ -167,7 +183,7 @@ def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True)
                     restaurants.append(restaurant)
                 
                 if restaurants:
-                    print(f"✅ Found {len(restaurants)} restaurants from OpenStreetMap")
+                    print(f"✅ Found {len(restaurants)} businesses from OpenStreetMap")
                     return restaurants
                 else:
                     print(f"⚠️ No restaurants found on this endpoint, trying next...")
@@ -221,3 +237,8 @@ def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True)
     print("\n🧪 Testing with mock restaurant data...\n")
     
     return MOCK_RESTAURANTS
+
+
+def get_restaurants(location: tuple, radius: int = 3000, test_mode: bool = True) -> List[Dict]:
+    """Backward-compatible restaurant-specific discovery wrapper."""
+    return get_businesses(location, radius, test_mode, business_type="restaurant")

@@ -23,5 +23,7 @@ logs/
 # Results and scratch files
 results/*.csv
 results/*.json
+results/dashboard_data.js
 !results/.gitkeep
 scratch/
+dist/

@@ -156,6 +156,10 @@ class ExecutionLogger:
 
 
 def main():
+    # The workflow prints Unicode status markers. Windows consoles can default
+    # to cp1252, which otherwise causes status and export commands to crash.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     # Redirect stdout and stderr to a timestamped file
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     log_file = f"logs/run_{timestamp}.log"

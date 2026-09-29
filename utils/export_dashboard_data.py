@@ -20,10 +20,12 @@ DB_PATH = "data/agent.db"
 OUTPUT_PATH = "results/dashboard_data.js"
 
 def main():
-    print("📊 Exporting database analytics to JavaScript for the showcase dashboard...")
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    print("Exporting database analytics to JavaScript for the showcase dashboard...")
     
     if not os.path.exists(DB_PATH):
-        print(f"❌ Database not found at {DB_PATH}. Run scraping first!")
+        print(f"Database not found at {DB_PATH}. Run scraping first!")
         sys.exit(1)
         
     conn = sqlite3.connect(DB_PATH)
@@ -36,7 +38,7 @@ def main():
     cursor.execute("SELECT COUNT(*) FROM contacts WHERE email IS NOT NULL")
     emails_found = cursor.fetchone()[0]
     
-    cursor.execute("SELECT COUNT(*) FROM campaigns")
+    cursor.execute("SELECT COUNT(*) FROM campaigns WHERE status = 'sent'")
     total_campaigns = cursor.fetchone()[0]
     
     cursor.execute("SELECT COUNT(*) FROM email_tracking WHERE event_type = 'opened'")
@@ -85,7 +87,7 @@ def main():
         json.dump(dashboard_data, f, indent=2, ensure_ascii=False)
         f.write(";\n")
         
-    print(f"✅ Successfully exported analytics to {OUTPUT_PATH}")
+    print(f"Successfully exported analytics to {OUTPUT_PATH}")
 
 if __name__ == "__main__":
     main()
